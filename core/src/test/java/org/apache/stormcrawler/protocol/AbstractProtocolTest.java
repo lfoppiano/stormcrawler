@@ -17,19 +17,18 @@
 
 package org.apache.stormcrawler.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 /** Takes care of initialising Jetty for testing protocol implementation * */
@@ -37,39 +36,34 @@ public abstract class AbstractProtocolTest {
 
     protected static Server httpServer;
 
-    protected static final Integer HTTP_PORT = findRandomOpenPortOnAllLocalInterfaces();
+    protected static Integer HTTP_PORT;
 
     @BeforeEach
     void initJetty() throws Exception {
-        if (httpServer != null) {
+        if (httpServer != null && httpServer.isRunning()) {
             return;
         }
-        assertNotEquals(Integer.valueOf(-1), HTTP_PORT);
-        httpServer = new Server(HTTP_PORT);
+
+        httpServer = new Server(0);
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(getHandlers());
         httpServer.setHandler(handlers);
         httpServer.start();
+
+        HTTP_PORT = ((ServerConnector) httpServer.getConnectors()[0]).getLocalPort();
+        Assertions.assertNotNull(HTTP_PORT);
+    }
+
+    @AfterAll
+    static void stopJetty() throws Exception {
+        if (httpServer != null) {
+            httpServer.stop();
+            httpServer = null;
+        }
     }
 
     protected Handler[] getHandlers() {
         return new Handler[] {new WildcardResourceHandler()};
-    }
-
-    @AfterAll
-    static void stopJetty() {
-        try {
-            httpServer.stop();
-        } catch (Exception ignored) {
-        }
-    }
-
-    private static Integer findRandomOpenPortOnAllLocalInterfaces() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            return -1;
-        }
     }
 
     public static class WildcardResourceHandler extends AbstractHandler {
