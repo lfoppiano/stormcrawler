@@ -20,7 +20,7 @@ package org.apache.stormcrawler.util;
 import org.apache.storm.metric.api.IReducer;
 
 /** Used to return an average value per second. */
-public class PerSecondReducer implements IReducer<TimeReducerState> {
+public class PerSecondReducer implements IReducer<PerSecondReducer.TimeReducerState> {
 
     @Override
     public TimeReducerState init() {
@@ -54,9 +54,9 @@ public class PerSecondReducer implements IReducer<TimeReducerState> {
         double permsec = accumulator.sum / msec;
         return permsec * 1000d;
     }
-}
 
-class TimeReducerState {
-    public long started = System.currentTimeMillis();
-    public double sum = 0.0;
+    static class TimeReducerState {
+        public long started = System.currentTimeMillis();
+        public double sum = 0.0;
+    }
 }

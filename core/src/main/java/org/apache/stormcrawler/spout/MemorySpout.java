@@ -160,39 +160,39 @@ public class MemorySpout extends BaseRichSpout {
         super.deactivate();
         active = false;
     }
-}
 
-class ScheduledURL implements Comparable<ScheduledURL> {
-    Date nextFetchDate;
-    String url;
-    Metadata metadata;
+    static class ScheduledURL implements Comparable<ScheduledURL> {
+        Date nextFetchDate;
+        String url;
+        Metadata metadata;
 
-    ScheduledURL(String url, Metadata m, Date nextFetchDate) {
-        this.nextFetchDate = nextFetchDate;
-        this.url = url;
-        this.metadata = m;
-    }
-
-    @Override
-    public String toString() {
-        return url + "\t" + nextFetchDate;
-    }
-
-    /** Sort by next fetch date then URl. * */
-    @Override
-    public int compareTo(ScheduledURL o) {
-        // compare the URL
-        int compString = url.compareTo(o.url);
-        if (compString == 0) {
-            return 0;
+        ScheduledURL(String url, Metadata m, Date nextFetchDate) {
+            this.nextFetchDate = nextFetchDate;
+            this.url = url;
+            this.metadata = m;
         }
 
-        // compare the date
-        int comp = nextFetchDate.compareTo(o.nextFetchDate);
-        if (comp != 0) {
-            return comp;
+        @Override
+        public String toString() {
+            return url + "\t" + nextFetchDate;
         }
 
-        return compString;
+        /** Sort by next fetch date then URl. * */
+        @Override
+        public int compareTo(ScheduledURL o) {
+            // compare the URL
+            int compString = url.compareTo(o.url);
+            if (compString == 0) {
+                return 0;
+            }
+
+            // compare the date
+            int comp = nextFetchDate.compareTo(o.nextFetchDate);
+            if (comp != 0) {
+                return comp;
+            }
+
+            return compString;
+        }
     }
 }
