@@ -139,14 +139,14 @@ public class JSoupTextExtractor implements TextExtractor {
 
                     public void tail(Node node, int depth) {
                         // make sure there is a space between block tags and immediately
-                        // following text nodes <div>One</div>Two should be "One Two".
+                        // following siblings <div>One</div><a>Two</a> should be "One Two".
                         if (node instanceof Element) {
                             Element element = (Element) node;
                             if (element == excluded) {
                                 excluded = null;
                             }
                             if (element.isBlock()
-                                    && (node.nextSibling() instanceof TextNode)
+                                    && node.nextSibling() != null
                                     && !lastCharIsWhitespace(accum)) {
                                 accum.append(' ');
                             }
